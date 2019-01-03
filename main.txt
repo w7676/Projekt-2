@@ -6,9 +6,9 @@
 using namespace std;
 
 const int RozmiarBazy = 10; //Maksymalna liczba adresów internetowych, które mo¿na przechowywaæ
-const int MaksymalnaDlugoscAdresu = 255; //Dopuszczalna liczba znaków z których mo¿e siê sk³adaæ adres internetowy, d³u¿sze adresy bêd¹ ucinane
 const int DlugoscSkrotu = 4; //Skrót sk³ada siê z tylu znaków
 const int IloscPowtorzen = 3; //Podejmujemy tyle prób losowania skrótu jesli wylosowany dotychczas skrót jest ju¿ u¿ywany przez inny adres
+const char BrakOpcji = '\0'; //Znak symbolizuj¹cy nie wybranie, ¿adnej opcji
 
 string Baza[RozmiarBazy][2]; //Tablica dwuwymiarowa przechowuj¹ca adresy internetowe i ich skróty. Baza[indesk][0] przechowuje adres, Baza[indesk][1] zawiera skrót adresu
 char ZnakiSkrotu[]{ 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' };
@@ -17,11 +17,9 @@ const int IloscZnakow = sizeof(ZnakiSkrotu) / sizeof(char); //Liczba znaków prze
 //Funkcja zwraca adres internetowy podany przez u¿ytkownika
 string WczytajAdres()
 {
-	cout << "Podaj adres internetowy (pusty adres konczy program). Nacisnij [ENTER] aby kontynuowac:\n";
-	char znaki[MaksymalnaDlugoscAdresu + 1]; //Bufor na adres jest wiêkszy o 1 ze wzglêdu na miejsce na znak '\0' koñcz¹cy ³añcuch znaków
-	cin.getline(znaki, MaksymalnaDlugoscAdresu); //Wczytanie znaków adresu do bufora
-	string adres(znaki);
-
+	string adres;
+	cout << "Podaj adres internetowy (pusty adres przerywa dodawanie). Nacisnij [ENTER] aby kontynuowac:\n";
+	getline(cin, adres);
 	return adres;
 }
 
@@ -55,7 +53,7 @@ string LosujSkrot(string adres)
 //Funkcaj zwraca indeks do znalezionego adresu lub -1 jeœli nic nie znalaz³a
 int ZnajdzAdres(string adres)
 {
-	for (int indeks = 0; indeks < RozmiarBazy; indeks++) // //Pêtla wykonuj¹ca siê dla wszystkich adresów
+	for (int indeks = 0; indeks < RozmiarBazy; indeks++) //Pêtla wykonuj¹ca siê dla wszystkich adresów
 	{
 		if (Baza[indeks][0].empty()) //Napotkaliœmy pierwszy pusty adres wiêæ nie ma co dalej szukaæ
 			return -1;
@@ -93,12 +91,11 @@ int DodajAdres(string adres)
 	return -2; //Nie mogliœmy wylosowaæ unikalnego skrótu
 }
 
-int main()
+void Dodaj()
 {
-	srand((unsigned int)time(NULL)); //Inicjuje punk startowy generatora liczb pseudolosowych przy pomocy aktualnego czasu
 	string adres = WczytajAdres(); //Pobiera adres od u¿ytkownika
 
-	while (!adres.empty()) //Jeœli adres nie jest pusty
+	while (!adres.empty())
 	{
 		int indeks = ZnajdzAdres(adres); //Szukaj adresu
 
@@ -118,7 +115,64 @@ int main()
 		}
 
 		adres = WczytajAdres();
-	};
+	}
+}
 
+//Procedura wypisuj¹ca dostêpne opcje dla menu g³ównego
+void WypiszOpcjeMenuGlownego()
+{
+	cout << "\tWpisz \"d\", aby dodac adres\n";
+	cout << "\tWpisz \"p\", aby uzyskac pomoc\n";
+	cout << "\tPusta opcja konczy program\n";
+}
+
+//Funkcja zwraca opcjê wybran¹ przez u¿ytkownika. Zwraca BrakOpcji jeœli nic nie zosta³o wybrane.
+char WczytajOpcje()
+{
+	string linia; cout << "Wybierz opcje (wpisz \"p\", aby uzyskac pomoc):\n";
+	getline(cin, linia); //Wczytaj liniê
+	
+	if (linia.empty()) //Wczytano pust¹ linijkê
+		return BrakOpcji;
+	else
+		return linia[0];
+}
+
+//Procedura wypisuj¹ca nierozpoznan¹ opcjê
+void WypiszNieznanaOpcje(char opcja)
+{
+	cout << "\tNieznana opcja \"" << opcja << "\"\n";
+	cout << "\tWpisz \"p\", aby uzyskac pomoc\n";
+}
+
+void MenuGlowne()
+{
+	char opcja;
+
+	do
+	{
+		opcja = WczytajOpcje();
+
+		switch (opcja)
+		{
+			case 'd':
+				Dodaj();
+				break;
+			case 'p':
+				WypiszOpcjeMenuGlownego();
+				break;
+			case BrakOpcji:
+				return; //Koñczymy program
+			default:
+				WypiszNieznanaOpcje(opcja);
+				break;
+		}
+	} while (true); //Dopóki u¿ytkownik wybierze cokolwiek, kontunuujemy program
+}
+
+int main()
+{
+	srand((unsigned int)time(NULL)); //Inicjuje punk startowy generatora liczb pseudolosowych przy pomocy aktualnego czasu
+	MenuGlowne(); //Przechodzi do menu g³ownego programu
 	return 0;
 }
