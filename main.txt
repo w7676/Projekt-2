@@ -18,7 +18,7 @@ const int IloscZnakow = sizeof(ZnakiSkrotu) / sizeof(char); //Liczba znaków prze
 string WczytajAdres()
 {
 	string adres;
-	cout << "Podaj adres internetowy (pusty adres przerywa dodawanie). Nacisnij [ENTER] aby kontynuowac:\n";
+	cout << "Podaj adres internetowy (pusty adres przerywa operacje). Nacisnij [ENTER] aby kontynuowac:\n";
 	getline(cin, adres);
 	return adres;
 }
@@ -121,7 +121,8 @@ void Dodaj()
 //Procedura wypisuj¹ca dostêpne opcje dla menu g³ównego
 void WypiszOpcjeMenuGlownego()
 {
-	cout << "\tWpisz \"d\", aby dodac adres\n";
+	cout << "\tWpisz \"d\", aby dodac adres(y)\n";
+	cout << "\tWpisz \"u\", aby usunac adres(y)\n";
 	cout << "\tWpisz \"p\", aby uzyskac pomoc\n";
 	cout << "\tPusta opcja konczy program\n";
 }
@@ -145,6 +146,66 @@ void WypiszNieznanaOpcje(char opcja)
 	cout << "\tWpisz \"p\", aby uzyskac pomoc\n";
 }
 
+//Procedura wypisuj¹ca dostêpne opcje dla menu g³ównego
+void WypiszOpcjeUsuwania()
+{
+	cout << "\tWpisz \"a\", aby usunac adres(y) przy pomocy samego adresu\n";
+	cout << "\tWpisz \"p\", aby uzyskac pomoc\n";
+	cout << "\tPusta opcja wraca do menu glownego\n";
+}
+
+void UsunAdres(int indeks)
+{
+	Baza[indeks][0].clear(); //Czyœci adres
+	Baza[indeks][1].clear(); //Czyœci skrót
+}
+
+//Usuwa adresy wykorzystuj¹c sam adres
+void Usun()
+{
+	string adres = WczytajAdres();
+
+	while (!adres.empty())
+	{
+		int indeks = ZnajdzAdres(adres);
+
+		if (indeks == -1)
+			cout << "\tNie znaleziono adresu do usuniecia\n";
+		else
+		{
+			UsunAdres(indeks);
+			cout << "\tUsunieto adres\n";
+		}
+
+		adres = WczytajAdres();
+	}
+}
+
+void MenuUsuwania()
+{
+	char opcja;
+
+	do
+	{
+		opcja = WczytajOpcje();
+
+		switch (opcja)
+		{
+		case 'a':
+			Usun();
+			break;
+		case 'p':
+			WypiszOpcjeUsuwania();
+			break;
+		case BrakOpcji:
+			return; //Wracamy do menu g³ownego
+		default:
+			WypiszNieznanaOpcje(opcja);
+			break;
+		}
+	} while (true); //Dopóki u¿ytkownik wybierze cokolwiek, pozostajemy na poziomie menu usuwania
+}
+
 void MenuGlowne()
 {
 	char opcja;
@@ -157,6 +218,9 @@ void MenuGlowne()
 		{
 			case 'd':
 				Dodaj();
+				break;
+			case 'u':
+				MenuUsuwania();
 				break;
 			case 'p':
 				WypiszOpcjeMenuGlownego();
