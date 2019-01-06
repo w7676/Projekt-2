@@ -81,21 +81,26 @@ int DodajAdres(string adres)
 	for (int proba = 0; proba < IloscPowtorzen; proba++)
 	{
 		string skrot = LosujSkrot(adres);
-		int indeks;
+		int adresyDoSprawdzenia = IloscAdresow + 1; //Musimy wykonaæ o jedno sprawdzenie wiêcej w przypadku gdy dodajemy adres jako ostatni
+		int indeks = 0;
 
-		for (indeks = 0; indeks < RozmiarBazy; indeks++) //Pêtla wykonuj¹ca siê dla wszystkich adresów
+		do
 		{
-			if (Baza[indeks][1] == skrot) //Natrafiliœmy na inny adres o takim samym skrócie
+			if (indeks == RozmiarBazy) //Przeszukaliœmy ca³¹ bazê musia³o zabrakn¹æ pustego miejsca
+				return -1;
+			else if (Baza[indeks][1] == skrot) //Natrafiliœmy na inny adres o takim samym skrócie
 				break; //Przerywamy i próbujemy wylosowaæ inny skrót
 			else if (Baza[indeks][0].empty()) //Napotkaliœmy pierwszy pusty adres wstawiamy nasz adres wraz ze skrótem i wychodzimy z funkcji
 			{
 				WstawAdres(adres, skrot, indeks);
 				return indeks;
 			}
-		}
-
-		if (indeks == RozmiarBazy) //Pezeszukaliœmy ca³¹ baze musia³o zabrakn¹æ pustego miejsca
-			return -1;
+			else
+			{
+				adresyDoSprawdzenia--;
+				indeks++;
+			}
+		} while (adresyDoSprawdzenia > 0); //Pêtla wykonuj¹ca siê dla wszystkich adresów + 1
 	}
 
 	return -2; //Nie mogliœmy wylosowaæ unikalnego skrótu
