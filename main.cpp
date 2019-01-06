@@ -14,6 +14,8 @@ string Baza[RozmiarBazy][2]; //Tablica dwuwymiarowa przechowuj¹ca adresy interne
 char ZnakiSkrotu[]{ 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' };
 const int IloscZnakow = sizeof(ZnakiSkrotu) / sizeof(char); //Liczba znaków przechowywanych w tablicy ZnakiSkrotu
 
+int IloscAdresow = 0; //Zmienna przechowuj¹ca aktualn¹ liczbê dodanych adresów
+
 //Funkcja zwraca adres internetowy podany przez u¿ytkownika
 string WczytajAdres()
 {
@@ -34,6 +36,7 @@ void WstawAdres(string adres, string skrot, int indeks)
 {
 	Baza[indeks][0] = adres;
 	Baza[indeks][1] = skrot;
+	IloscAdresow++; //Zwiêksza aktualn¹ liczbê adresów
 }
 
 //Funkcja zwracaj¹ca skrót dla adresu
@@ -53,16 +56,23 @@ string LosujSkrot(string adres)
 //Funkcaj zwraca indeks do znalezionego adresu lub -1 jeœli nic nie znalaz³a
 int ZnajdzAdres(string adres)
 {
-	for (int indeks = 0; indeks < RozmiarBazy; indeks++) //Pêtla wykonuj¹ca siê dla wszystkich adresów
-	{
-		if (Baza[indeks][0].empty()) //Napotkaliœmy pierwszy pusty adres wiêæ nie ma co dalej szukaæ
-			return -1;
+	int adresyDoSprawdzenia = IloscAdresow;
+	int indeks = 0;
 
-		if (Baza[indeks][0] == adres) //ZnaleŸliœmy szukany adres, zwracamy do niego indeks
-			return indeks;
+	while (adresyDoSprawdzenia > 0) //Pêtla wykonuj¹ca siê dla wszystkich adresów
+	{
+		if (!Baza[indeks][0].empty()) //Napotkaliœmy pierwszy adres do sprawdzenia
+		{
+			if (Baza[indeks][0] == adres) //ZnaleŸliœmy szukany adres, zwracamy do niego indeks
+				return indeks;
+
+			adresyDoSprawdzenia--; //Zmniejszamy pulê adresów do sprawdzenia
+		}
+
+		indeks++; //Bêdziemy sprawdzaæ nastêpny indeks
 	}
 
-	return -1; //Przeszukaliœmy ca³¹ bazê i nie znaleŸliœmy identycznego adresu;
+	return -1; //Przeszukaliœmy ca³¹ bazê i nie znaleŸliœmy identycznego adresu
 }
 
 //Funkcja dodaj¹ca adres zwraca indeks dodanego adresu lub -1 jeœli siê nie uda³o go dodaæ z braku miejsca lub -2 jeœli istnieje inny adres o tym samym skrócie
@@ -91,6 +101,7 @@ int DodajAdres(string adres)
 	return -2; //Nie mogliœmy wylosowaæ unikalnego skrótu
 }
 
+//Procedura dodawania adresów
 void Dodaj()
 {
 	string adres = WczytajAdres(); //Pobiera adres od u¿ytkownika
@@ -154,10 +165,12 @@ void WypiszOpcjeUsuwania()
 	cout << "\tPusta opcja wraca do menu glownego\n";
 }
 
+//Usuwa adres na danej pozycji
 void UsunAdres(int indeks)
 {
 	Baza[indeks][0].clear(); //Czyœci adres
 	Baza[indeks][1].clear(); //Czyœci skrót
+	IloscAdresow--; //Zmniejsza iloœæ adresów
 }
 
 //Usuwa adresy wykorzystuj¹c sam adres
