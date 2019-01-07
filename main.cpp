@@ -31,6 +31,17 @@ string WczytajAdres()
 	return WczytajTekst("DODAWANIE", "adres internetowy");
 }
 
+//Zwraca indeks podany przez u¿ytkownika, lub -1 jeœli podano pusty tekst
+int WczytajIndeks()
+{
+	string tekst = WczytajTekst("WYSZUKIWANIE", "indeks");
+
+	if (tekst.empty())
+		return -1;
+	else
+		return atoi(tekst.c_str());
+}
+
 //Procedura wypisuje wiadomoœæ i informacje o adresie z wybranego indeksu
 void WypiszAdres(string wiadomosc, int indeks)
 {
@@ -145,6 +156,7 @@ void WypiszOpcjeMenuGlownego()
 {
 	cout << "\tWpisz \"d\", aby dodac adres(y)\n";
 	cout << "\tWpisz \"u\", aby usunac adres(y)\n";
+	cout << "\tWpisz \"s\", aby szukac adres(u|y)\n";
 	cout << "\tWpisz \"o\", aby uzyskac liste opcji\n";
 	cout << "\tPusta opcja konczy program\n";
 }
@@ -205,6 +217,55 @@ void Usun()
 	}
 }
 
+void SzukajPoIndeksie()
+{
+	int indeks = WczytajIndeks();
+
+	while (indeks >= 0)
+	{
+		if (Baza[indeks][0].empty())
+			cout << "\tPod podanym indeksem nic sie nie znajduje\n";
+		else
+			WypiszAdres("znaleziono", indeks);
+
+		indeks = WczytajIndeks();
+	}
+}
+
+
+void WypiszOpcjeSzukania()
+{
+	cout << "\tWpisz \"i\", aby znalezc adres(y) za pomoca indeksu\n";
+	cout << "\tWpisz \"o\", aby uzyskac liste opcji\n";
+	cout << "\tPusta opcja wraca do menu glownego\n";
+}
+
+void MenuSzukania()
+{
+	char opcja;
+
+	do
+	{
+		cout << "MENU SZUKANIA - ";
+		opcja = WczytajOpcje();
+
+		switch (opcja)
+		{
+		case 'i':
+			SzukajPoIndeksie();
+			break;
+		case 'o':
+			WypiszOpcjeSzukania();
+			break;
+		case BrakOpcji:
+			return; //Wracamy do menu g³ownego
+		default:
+			WypiszNieznanaOpcje(opcja);
+			break;
+		}
+	} while (true); //Dopóki u¿ytkownik wybierze cokolwiek, pozostajemy na poziomie menu szukania
+}
+
 void MenuUsuwania()
 {
 	char opcja;
@@ -247,6 +308,9 @@ void MenuGlowne()
 				break;
 			case 'u':
 				MenuUsuwania();
+				break;
+			case 's':
+				MenuSzukania();
 				break;
 			case 'o':
 				WypiszOpcjeMenuGlownego();
