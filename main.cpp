@@ -16,13 +16,19 @@ const int IloscZnakow = sizeof(ZnakiSkrotu) / sizeof(char); //Liczba znaków prze
 
 int IloscAdresow = 0; //Zmienna przechowuj¹ca aktualn¹ liczbê dodanych adresów
 
+//Funkcja zwraca tekst podany przez u¿ytkownika
+string WczytajTekst(string naglowek, string przedmiot)
+{
+	string tekst;
+	cout << naglowek << " - " << "Podaj " << przedmiot << " (pusty tekst przerywa operacje). Nacisnij[ENTER] aby kontynuowac:\n";
+	getline(cin, tekst);
+	return tekst;
+}
+
 //Funkcja zwraca adres internetowy podany przez u¿ytkownika
 string WczytajAdres()
 {
-	string adres;
-	cout << "Podaj adres internetowy (pusty adres przerywa operacje). Nacisnij [ENTER] aby kontynuowac:\n";
-	getline(cin, adres);
-	return adres;
+	return WczytajTekst("DODAWANIE", "adres internetowy");
 }
 
 //Procedura wypisuje wiadomoœæ i informacje o adresie z wybranego indeksu
@@ -139,14 +145,14 @@ void WypiszOpcjeMenuGlownego()
 {
 	cout << "\tWpisz \"d\", aby dodac adres(y)\n";
 	cout << "\tWpisz \"u\", aby usunac adres(y)\n";
-	cout << "\tWpisz \"p\", aby uzyskac pomoc\n";
+	cout << "\tWpisz \"o\", aby uzyskac liste opcji\n";
 	cout << "\tPusta opcja konczy program\n";
 }
 
 //Funkcja zwraca opcjê wybran¹ przez u¿ytkownika. Zwraca BrakOpcji jeœli nic nie zosta³o wybrane.
 char WczytajOpcje()
 {
-	string linia; cout << "Wybierz opcje (wpisz \"p\", aby uzyskac pomoc):\n";
+	string linia; cout << "Wybierz opcje (wpisz \"o\", aby uzyskac liste opcji):\n";
 	getline(cin, linia); //Wczytaj liniê
 	
 	if (linia.empty()) //Wczytano pust¹ linijkê
@@ -159,14 +165,14 @@ char WczytajOpcje()
 void WypiszNieznanaOpcje(char opcja)
 {
 	cout << "\tNieznana opcja \"" << opcja << "\"\n";
-	cout << "\tWpisz \"p\", aby uzyskac pomoc\n";
+	cout << "\tWpisz \"o\", aby uzyskac liste opcji\n";
 }
 
 //Procedura wypisuj¹ca dostêpne opcje dla menu g³ównego
 void WypiszOpcjeUsuwania()
 {
 	cout << "\tWpisz \"a\", aby usunac adres(y) przy pomocy samego adresu\n";
-	cout << "\tWpisz \"p\", aby uzyskac pomoc\n";
+	cout << "\tWpisz \"o\", aby uzyskac liste opcji\n";
 	cout << "\tPusta opcja wraca do menu glownego\n";
 }
 
@@ -205,6 +211,7 @@ void MenuUsuwania()
 
 	do
 	{
+		cout << "MENU USUWANIA - ";
 		opcja = WczytajOpcje();
 
 		switch (opcja)
@@ -212,7 +219,7 @@ void MenuUsuwania()
 		case 'a':
 			Usun();
 			break;
-		case 'p':
+		case 'o':
 			WypiszOpcjeUsuwania();
 			break;
 		case BrakOpcji:
@@ -230,6 +237,7 @@ void MenuGlowne()
 
 	do
 	{
+		cout << "MENU GLOWNE - ";
 		opcja = WczytajOpcje();
 
 		switch (opcja)
@@ -240,7 +248,7 @@ void MenuGlowne()
 			case 'u':
 				MenuUsuwania();
 				break;
-			case 'p':
+			case 'o':
 				WypiszOpcjeMenuGlownego();
 				break;
 			case BrakOpcji:
