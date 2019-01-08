@@ -223,7 +223,9 @@ void SzukajPoIndeksie()
 
 	while (indeks >= 0)
 	{
-		if (Baza[indeks][0].empty())
+		if (indeks >= RozmiarBazy)
+			cout << "\tPodano niepoprawny indeks\n";
+		else if (Baza[indeks][0].empty())
 			cout << "\tPod podanym indeksem nic sie nie znajduje\n";
 		else
 			WypiszAdres("znaleziono", indeks);
