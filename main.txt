@@ -31,6 +31,12 @@ string WczytajAdres()
 	return WczytajTekst("DODAWANIE", "adres internetowy");
 }
 
+//Zwraca adres internetowy podany przez u¿ytkownika
+string WczytajAdresDoSzukania()
+{
+	return WczytajTekst("WYSZUKIWANIE", "adres internetowy");
+}
+
 //Zwraca indeks podany przez u¿ytkownika, lub -1 jeœli podano pusty tekst
 int WczytajIndeks()
 {
@@ -234,10 +240,28 @@ void SzukajPoIndeksie()
 	}
 }
 
+void SzukajPoAdresie()
+{
+	string adres = WczytajAdresDoSzukania();
+
+	while (!adres.empty())
+	{
+		int indeks = ZnajdzAdres(adres);
+
+		if (indeks < 0)
+			cout << "\tNie znaleziono adresu\n";
+		else
+			WypiszAdres("znaleziono", indeks);
+
+		adres = WczytajAdresDoSzukania();
+	}
+}
+
 
 void WypiszOpcjeSzukania()
 {
 	cout << "\tWpisz \"i\", aby znalezc adres(y) za pomoca indeksu\n";
+	cout << "\tWpisz \"a\", aby znalezc adres(y) za pomoca adresu\n";
 	cout << "\tWpisz \"o\", aby uzyskac liste opcji\n";
 	cout << "\tPusta opcja wraca do menu glownego\n";
 }
@@ -255,6 +279,9 @@ void MenuSzukania()
 		{
 		case 'i':
 			SzukajPoIndeksie();
+			break;
+		case 'a':
+			SzukajPoAdresie();
 			break;
 		case 'o':
 			WypiszOpcjeSzukania();
