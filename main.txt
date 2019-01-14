@@ -37,6 +37,12 @@ string WczytajAdresDoSzukania()
 	return WczytajTekst("WYSZUKIWANIE", "adres internetowy");
 }
 
+//Zwraca skrót adresu podany przez u¿ytkownika
+string WczytajSkrotDoSzukania()
+{
+	return WczytajTekst("WYSZUKIWANIE", "skrot");
+}
+
 //Zwraca indeks podany przez u¿ytkownika, lub -1 jeœli podano pusty tekst
 int WczytajIndeks()
 {
@@ -90,6 +96,28 @@ int ZnajdzAdres(string adres)
 				return indeks;
 
 			adresyDoSprawdzenia--; //Zmniejszamy pulê adresów do sprawdzenia
+		}
+
+		indeks++; //Bêdziemy sprawdzaæ nastêpny indeks
+	}
+
+	return -1; //Przeszukaliœmy ca³¹ bazê i nie znaleŸliœmy identycznego adresu
+}
+
+//Funkcaj zwraca indeks do znalezionego adresu lub -1 jeœli nic nie znalaz³a
+int ZnajdzAdresPoSkrocie(string skrot)
+{
+	int skrotyDoSprawdzenia = IloscAdresow;
+	int indeks = 0;
+
+	while (skrotyDoSprawdzenia > 0) //Pêtla wykonuj¹ca siê dla wszystkich adresów
+	{
+		if (!Baza[indeks][1].empty()) //Napotkaliœmy pierwszy skrót do sprawdzenia
+		{
+			if (Baza[indeks][1] == skrot) //ZnaleŸliœmy szukany adres, zwracamy do niego indeks
+				return indeks;
+
+			skrotyDoSprawdzenia--; //Zmniejszamy pulê adresów do sprawdzenia
 		}
 
 		indeks++; //Bêdziemy sprawdzaæ nastêpny indeks
@@ -257,11 +285,29 @@ void SzukajPoAdresie()
 	}
 }
 
+void SzukajPoSkrocie()
+{
+	string skrot = WczytajSkrotDoSzukania();
+
+	while (!skrot.empty())
+	{
+		int indeks = ZnajdzAdresPoSkrocie(skrot);
+
+		if (indeks < 0)
+			cout << "\tNie znaleziono adresu\n";
+		else
+			WypiszAdres("znaleziono", indeks);
+
+		skrot = WczytajSkrotDoSzukania();
+	}
+}
+
 
 void WypiszOpcjeSzukania()
 {
 	cout << "\tWpisz \"i\", aby znalezc adres(y) za pomoca indeksu\n";
 	cout << "\tWpisz \"a\", aby znalezc adres(y) za pomoca adresu\n";
+	cout << "\tWpisz \"s\", aby znalezc adres(y) za pomoca skrotu\n";
 	cout << "\tWpisz \"o\", aby uzyskac liste opcji\n";
 	cout << "\tPusta opcja wraca do menu glownego\n";
 }
@@ -282,6 +328,9 @@ void MenuSzukania()
 			break;
 		case 'a':
 			SzukajPoAdresie();
+			break;
+		case 's':
+			SzukajPoSkrocie();
 			break;
 		case 'o':
 			WypiszOpcjeSzukania();
