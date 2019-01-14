@@ -291,12 +291,17 @@ void SzukajPoSkrocie()
 
 	while (!skrot.empty())
 	{
-		int indeks = ZnajdzAdresPoSkrocie(skrot);
-
-		if (indeks < 0)
-			cout << "\tNie znaleziono adresu\n";
+		if (skrot.length() != DlugoscSkrotu)
+			cout << "\tPodano niepoprawny skrot, skrot musi skladac sie z " << DlugoscSkrotu << " znakow\n";
 		else
-			WypiszAdres("znaleziono", indeks);
+		{
+			int indeks = ZnajdzAdresPoSkrocie(skrot);
+
+			if (indeks < 0)
+				cout << "\tNie znaleziono adresu\n";
+			else
+				WypiszAdres("znaleziono", indeks);
+		}
 
 		skrot = WczytajSkrotDoSzukania();
 	}
