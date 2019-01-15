@@ -82,17 +82,17 @@ string LosujSkrot(string adres)
 	return skrot;
 }
 
-//Funkcaj zwraca indeks do znalezionego adresu lub -1 jeœli nic nie znalaz³a
-int ZnajdzAdres(string adres)
+//Funkcaj zwraca indeks do znalezionego adresu lub -1 jeœli nic nie znalaz³a. Parametr indeksTekstu s³u¿y do wyboru sprawdzania po samym adresie lub po jego skrócie
+int ZnajdzAdres(string tekst, int indeksTekstu)
 {
 	int adresyDoSprawdzenia = IloscAdresow;
 	int indeks = 0;
 
 	while (adresyDoSprawdzenia > 0) //Pêtla wykonuj¹ca siê dla wszystkich adresów
 	{
-		if (!Baza[indeks][0].empty()) //Napotkaliœmy pierwszy adres do sprawdzenia
+		if (!Baza[indeks][indeksTekstu].empty()) //Napotkaliœmy pierwszy tekst do sprawdzenia
 		{
-			if (Baza[indeks][0] == adres) //ZnaleŸliœmy szukany adres, zwracamy do niego indeks
+			if (Baza[indeks][indeksTekstu] == tekst) //ZnaleŸliœmy szukany adres, zwracamy do niego indeks
 				return indeks;
 
 			adresyDoSprawdzenia--; //Zmniejszamy pulê adresów do sprawdzenia
@@ -105,25 +105,15 @@ int ZnajdzAdres(string adres)
 }
 
 //Funkcaj zwraca indeks do znalezionego adresu lub -1 jeœli nic nie znalaz³a
+int ZnajdzAdresPoAdresie(string adres)
+{
+	return ZnajdzAdres(adres, 0);
+}
+
+//Funkcaj zwraca indeks do znalezionego adresu lub -1 jeœli nic nie znalaz³a
 int ZnajdzAdresPoSkrocie(string skrot)
 {
-	int skrotyDoSprawdzenia = IloscAdresow;
-	int indeks = 0;
-
-	while (skrotyDoSprawdzenia > 0) //Pêtla wykonuj¹ca siê dla wszystkich adresów
-	{
-		if (!Baza[indeks][1].empty()) //Napotkaliœmy pierwszy skrót do sprawdzenia
-		{
-			if (Baza[indeks][1] == skrot) //ZnaleŸliœmy szukany adres, zwracamy do niego indeks
-				return indeks;
-
-			skrotyDoSprawdzenia--; //Zmniejszamy pulê adresów do sprawdzenia
-		}
-
-		indeks++; //Bêdziemy sprawdzaæ nastêpny indeks
-	}
-
-	return -1; //Przeszukaliœmy ca³¹ bazê i nie znaleŸliœmy identycznego adresu
+	return ZnajdzAdres(skrot, 1);
 }
 
 //Funkcja dodaj¹ca adres zwraca indeks dodanego adresu lub -1 jeœli siê nie uda³o go dodaæ z braku miejsca lub -2 jeœli istnieje inny adres o tym samym skrócie
@@ -164,7 +154,7 @@ void Dodaj()
 
 	while (!adres.empty())
 	{
-		int indeks = ZnajdzAdres(adres); //Szukaj adresu
+		int indeks = ZnajdzAdresPoAdresie(adres); //Szukaj adresu
 
 		if (indeks >= 0) //Znaleziono adres
 			WypiszAdres("znaleziono", indeks);
@@ -237,7 +227,7 @@ void Usun()
 
 	while (!adres.empty())
 	{
-		int indeks = ZnajdzAdres(adres);
+		int indeks = ZnajdzAdresPoAdresie(adres);
 
 		if (indeks == -1)
 			cout << "\tNie znaleziono adresu do usuniecia\n";
@@ -251,6 +241,7 @@ void Usun()
 	}
 }
 
+//Znajduje adresy pos³uguj¹c siê indeksem
 void SzukajPoIndeksie()
 {
 	int indeks = WczytajIndeks();
@@ -268,13 +259,14 @@ void SzukajPoIndeksie()
 	}
 }
 
+//Znajduje adresy pos³uguj¹c siê samym adresem
 void SzukajPoAdresie()
 {
 	string adres = WczytajAdresDoSzukania();
 
 	while (!adres.empty())
 	{
-		int indeks = ZnajdzAdres(adres);
+		int indeks = ZnajdzAdresPoAdresie(adres);
 
 		if (indeks < 0)
 			cout << "\tNie znaleziono adresu\n";
@@ -285,6 +277,7 @@ void SzukajPoAdresie()
 	}
 }
 
+//Znajduje adresy pos³uguj¹c siê skrótem adresu
 void SzukajPoSkrocie()
 {
 	string skrot = WczytajSkrotDoSzukania();
