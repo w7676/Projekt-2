@@ -26,7 +26,7 @@ string WczytajTekst(string naglowek, string przedmiot)
 }
 
 //Funkcja zwraca adres internetowy podany przez u¿ytkownika
-string WczytajAdres()
+string WczytajAdresDoDodania()
 {
 	return WczytajTekst("DODAWANIE", "adres internetowy");
 }
@@ -37,6 +37,18 @@ string WczytajAdresDoSzukania()
 	return WczytajTekst("WYSZUKIWANIE", "adres internetowy");
 }
 
+//Funkcja zwraca adres internetowy podany przez u¿ytkownika
+string WczytajAdresDoUsuwania()
+{
+    return WczytajTekst("USUWANIE", "adres internetowy");
+}
+
+//Zwraca skrót adresu podany przez u¿ytkownika
+string WczytajSkrotDoUsuwania()
+{
+    return WczytajTekst("USUWANIE", "skrot");
+}
+
 //Zwraca skrót adresu podany przez u¿ytkownika
 string WczytajSkrotDoSzukania()
 {
@@ -44,7 +56,7 @@ string WczytajSkrotDoSzukania()
 }
 
 //Zwraca indeks podany przez u¿ytkownika, lub -1 jeœli podano pusty tekst
-int WczytajIndeks()
+int WczytajIndeksDoSzukania()
 {
 	string tekst = WczytajTekst("WYSZUKIWANIE", "indeks");
 
@@ -52,6 +64,17 @@ int WczytajIndeks()
 		return -1;
 	else
 		return atoi(tekst.c_str());
+}
+
+//Zwraca indeks podany przez u¿ytkownika, lub -1 jeœli podano pusty tekst
+int WczytajIndeksDoUsuwania()
+{
+    string tekst = WczytajTekst("USUWANIE", "indeks");
+
+    if (tekst.empty())
+        return -1;
+    else
+        return atoi(tekst.c_str());
 }
 
 //Procedura wypisuje wiadomoœæ i informacje o adresie z wybranego indeksu
@@ -150,7 +173,7 @@ int DodajAdres(string adres)
 //Procedura dodawania adresów
 void Dodaj()
 {
-	string adres = WczytajAdres(); //Pobiera adres od u¿ytkownika
+	string adres = WczytajAdresDoDodania(); //Pobiera adres od u¿ytkownika
 
 	while (!adres.empty())
 	{
@@ -171,7 +194,7 @@ void Dodaj()
 				cout << "\tNie mozna stworzyc unikalnego skrotu dla adresu!\n";
 		}
 
-		adres = WczytajAdres();
+		adres = WczytajAdresDoDodania();
 	}
 }
 
@@ -207,7 +230,9 @@ void WypiszNieznanaOpcje(char opcja)
 //Procedura wypisuj¹ca dostêpne opcje dla menu g³ównego
 void WypiszOpcjeUsuwania()
 {
+	cout << "\tWpisz \"i\", aby usunac adres(y) przy pomocy indeksu\n";
 	cout << "\tWpisz \"a\", aby usunac adres(y) przy pomocy samego adresu\n";
+	cout << "\tWpisz \"s\", aby usunac adres(y) przy pomocy skrotu\n";
 	cout << "\tWpisz \"o\", aby uzyskac liste opcji\n";
 	cout << "\tPusta opcja wraca do menu glownego\n";
 }
@@ -221,9 +246,9 @@ void UsunAdres(int indeks)
 }
 
 //Usuwa adresy wykorzystuj¹c sam adres
-void Usun()
+void UsunPoAdresie()
 {
-	string adres = WczytajAdres();
+	string adres = WczytajAdresDoUsuwania();
 
 	while (!adres.empty())
 	{
@@ -237,14 +262,61 @@ void Usun()
 			cout << "\tUsunieto adres\n";
 		}
 
-		adres = WczytajAdres();
+		adres = WczytajAdresDoUsuwania();
 	}
+}
+
+//Usuwa adresy wykorzystuj¹c indeks
+void UsunPoIndeksie()
+{
+    int indeks = WczytajIndeksDoUsuwania();
+
+    while (indeks >= 0)
+    {
+        if (indeks >= RozmiarBazy)
+            cout << "\tPodano niepoprawny indeks\n";
+        else if (Baza[indeks][0].empty())
+            cout << "\tPod podanym indeksem nic sie nie znajduje\n";
+        else
+        {
+            UsunAdres(indeks);
+            cout << "\tUsunieto adres\n";
+        }
+
+        indeks = WczytajIndeksDoUsuwania();
+    }
+}
+
+//Usuwa adresy wykorzystuj¹c skrot
+void UsunPoSkrocie()
+{
+    string skrot = WczytajSkrotDoUsuwania();
+
+    while (!skrot.empty())
+    {
+        if (skrot.length() != DlugoscSkrotu)
+            cout << "\tPodano niepoprawny skrot, skrot musi skladac sie z " << DlugoscSkrotu << " znakow\n";
+        else
+        {
+            int indeks = ZnajdzAdresPoSkrocie(skrot);
+
+            if (indeks == -1)
+                cout << "\tNie znaleziono adresu do usuniecia\n";
+            else
+            {
+                UsunAdres(indeks);
+                cout << "\tUsunieto adres\n";
+            }
+        }
+
+        skrot = WczytajSkrotDoUsuwania();
+    }
 }
 
 //Znajduje adresy pos³uguj¹c siê indeksem
 void SzukajPoIndeksie()
 {
-	int indeks = WczytajIndeks();
+	int indeks = WczytajIndeksDoSzukania();
 
 	while (indeks >= 0)
 	{
@@ -255,7 +327,7 @@ void SzukajPoIndeksie()
 		else
 			WypiszAdres("znaleziono", indeks);
 
-		indeks = WczytajIndeks();
+		indeks = WczytajIndeksDoSzukania();
 	}
 }
 
@@ -352,10 +424,16 @@ void MenuUsuwania()
 		opcja = WczytajOpcje();
 
 		switch (opcja)
-		{
+		{  
+	    case 'i':
+            UsunPoIndeksie();
+            break;
 		case 'a':
-			Usun();
+			UsunPoAdresie();
 			break;
+		case 's':
+                UsunPoSkrocie();
+                break;
 		case 'o':
 			WypiszOpcjeUsuwania();
 			break;
