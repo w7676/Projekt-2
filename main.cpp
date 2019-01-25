@@ -204,6 +204,7 @@ void WypiszOpcjeMenuGlownego()
 	cout << "\tWpisz \"d\", aby dodac adres(y)\n";
 	cout << "\tWpisz \"u\", aby usunac adres(y)\n";
 	cout << "\tWpisz \"s\", aby szukac adres(u|y)\n";
+	cout << "\tWpisz \"w\", aby wypisac wszystkie adresy\n";
 	cout << "\tWpisz \"o\", aby uzyskac liste opcji\n";
 	cout << "\tPusta opcja konczy program\n";
 }
@@ -233,6 +234,7 @@ void WypiszOpcjeUsuwania()
 	cout << "\tWpisz \"i\", aby usunac adres(y) przy pomocy indeksu\n";
 	cout << "\tWpisz \"a\", aby usunac adres(y) przy pomocy samego adresu\n";
 	cout << "\tWpisz \"s\", aby usunac adres(y) przy pomocy skrotu\n";
+	cout << "\tWpisz \"c\", aby usunac wszystkie adresy\n";
 	cout << "\tWpisz \"o\", aby uzyskac liste opcji\n";
 	cout << "\tPusta opcja wraca do menu glownego\n";
 }
@@ -310,6 +312,45 @@ void UsunPoSkrocie()
         }
 
         skrot = WczytajSkrotDoUsuwania();
+    }
+}
+
+//Czyœci wszystkie adresy
+void UsunWszystko()
+{
+    int adresyDoUsuniecia = IloscAdresow;
+    int liczbaAdresow = IloscAdresow;
+    int indeks = 0;
+
+    while (adresyDoUsuniecia > 0) //Pêtla wykonuj¹ca siê dla wszystkich adresów
+    {
+        if (!Baza[indeks][0].empty()) //Napotkaliœmy pierwszy adres do usuniêcia
+        {
+            UsunAdres(indeks);
+            adresyDoUsuniecia--; //Zmniejszamy pulê adresów do usuniêcia
+        }
+
+        indeks++; //Bêdziemy sprawdzaæ nastêpny indeks
+    }
+
+    cout << "\tUsunieto " << liczbaAdresow << " adres(y|ow)\n";
+}
+
+//Wypisuje wszystkie adresy
+void WypiszAdresy()
+{
+    int adresyDoWypisania = IloscAdresow;
+    int indeks = 0;
+
+    while (adresyDoWypisania > 0) //Pêtla wykonuj¹ca siê dla wszystkich adresów
+    {
+        if (!Baza[indeks][0].empty()) //Napotkaliœmy pierwszy adres do wypisania
+        {
+            WypiszAdres("znajduje sie", indeks);
+            adresyDoWypisania--; //Zmniejszamy pulê adresów
+        }
+
+        indeks++; //Bêdziemy sprawdzaæ nastêpny indeks
     }
 }
 
@@ -432,8 +473,11 @@ void MenuUsuwania()
 			UsunPoAdresie();
 			break;
 		case 's':
-                UsunPoSkrocie();
-                break;
+            UsunPoSkrocie();
+            break;
+        case 'c':
+            UsunWszystko();
+            break;
 		case 'o':
 			WypiszOpcjeUsuwania();
 			break;
@@ -466,6 +510,9 @@ void MenuGlowne()
 			case 's':
 				MenuSzukania();
 				break;
+			case 'w':
+                WypiszAdresy();
+                break;
 			case 'o':
 				WypiszOpcjeMenuGlownego();
 				break;
