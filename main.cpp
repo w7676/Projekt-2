@@ -2,6 +2,7 @@
 #include <string>
 #include <cstdlib>
 #include <ctime>
+#include <fstream>
 
 using namespace std;
 
@@ -9,6 +10,7 @@ const int RozmiarBazy = 10; //Maksymalna liczba adresów internetowych, które mo¿
 const int DlugoscSkrotu = 4; //Skrót sk³ada siê z tylu znaków
 const int IloscPowtorzen = 3; //Podejmujemy tyle prób losowania skrótu jesli wylosowany dotychczas skrót jest ju¿ u¿ywany przez inny adres
 const char BrakOpcji = '\0'; //Znak symbolizuj¹cy nie wybranie, ¿adnej opcji
+const char Separator = ','; //Znak u¿ywany do rozdzielenia adresu od skrótu w pliku. Musi to byæ znak nie wykorzystywany w adresie i skrócie.
 
 string Baza[RozmiarBazy][2]; //Tablica dwuwymiarowa przechowuj¹ca adresy internetowe i ich skróty. Baza[indesk][0] przechowuje adres, Baza[indesk][1] zawiera skrót adresu
 char ZnakiSkrotu[]{ 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' };
@@ -75,6 +77,15 @@ int WczytajIndeksDoUsuwania()
         return -1;
     else
         return atoi(tekst.c_str());
+}
+
+//Funkcja zwraca nazwê pliku podan¹ przez u¿ytkownika
+string WczytajNazwe()
+{
+    string nazwa;
+    cout << "Podaj nazwe pliku (pusty nazwa przerywa operacje). Nacisnij[ENTER] aby kontynuowac:\n";
+    getline(cin, nazwa);
+    return nazwa;
 }
 
 //Procedura wypisuje wiadomoœæ i informacje o adresie z wybranego indeksu
@@ -205,6 +216,8 @@ void WypiszOpcjeMenuGlownego()
 	cout << "\tWpisz \"u\", aby usunac adres(y)\n";
 	cout << "\tWpisz \"s\", aby szukac adres(u|y)\n";
 	cout << "\tWpisz \"w\", aby wypisac wszystkie adresy\n";
+	cout << "\tWpisz \"e\", aby eksportowac adresy do pliku\n";
+    cout << "\tWpisz \"i\", aby importowac adresy z pliku\n";
 	cout << "\tWpisz \"o\", aby uzyskac liste opcji\n";
 	cout << "\tPusta opcja konczy program\n";
 }
@@ -413,6 +426,94 @@ void SzukajPoSkrocie()
 	}
 }
 
+//Zapisuje adresy do pliku
+void EksportujAdresy()
+{
+    string nazwa = WczytajNazwe();
+
+    if (!nazwa.empty())
+    {
+        ofstream plik(nazwa.c_str()); //otwiera plik do zapisu
+        int adresyDoZapisania = IloscAdresow;
+        int indeks = 0;
+
+        while (adresyDoZapisania > 0) //Pêtla wykonuj¹ca siê dla wszystkich adresów
+        {
+            if (!Baza[indeks][0].empty()) //Napotkaliœmy pierwszy adres do zapisania
+            {
+                plik << Baza[indeks][0] << Separator << Baza[indeks][1] << "\n";
+                adresyDoZapisania--; //Zmniejszamy pulê adresów
+            }
+
+            indeks++; //Bêdziemy sprawdzaæ nastêpny indeks
+        }
+
+        cout << "\tZapisano " << IloscAdresow << "\n";
+    }
+}
+
+//Zwraca indeks pierwszego pustego miejsca lub -1 jesli wszystko jest zajête
+int ZnajdzWolneMiejsce()
+{
+    for (int indeks = 0; indeks < RozmiarBazy; indeks++)
+    {
+        if (Baza[indeks][0].empty()) //Wystarczy, ¿e sprawdzimy czy sam adres jest pusty
+            return indeks;
+    }
+
+    return -1; //Wszystko jest u¿ywane
+}
+
+//Wczytuje adresy wraz ze skrótami z pliku
+void ImportujAdresy()
+{
+    string nazwa = WczytajNazwe();
+
+    if (!nazwa.empty())
+    {
+        ifstream plik(nazwa.c_str()); //otwiera plik do odczytu
+        int wczytaneAdresy = 0;
+        int dodaneAdresy = 0;
+
+        while (!plik.eof()) //Pêtla wykonuje siê dopóki nie przeczytamy ca³ego pliku
+        {
+            string linia;
+            getline(plik, linia);
+
+            if (!linia.empty()) //Jeœli uda³o siê cokolwiek odczytaæ
+            {
+                string::size_type indeksSeparatora = linia.find(Separator); //Znajdujemy indeks znaku separatora
+
+                if (indeksSeparatora != string::npos && indeksSeparatora < linia.size()) //Uda³o siê znaleŸæ separator i nie jest on ostatnim znakiem
+                {
+                    string adres = linia.substr(0, indeksSeparatora); //Wyci¹gamy adres
+                    string skrot = linia.substr(indeksSeparatora + 1); //Wyci¹gamy skrót
+                    wczytaneAdresy++;
+
+                    int indeks = ZnajdzAdresPoAdresie(adres);
+
+                    if (indeks == -1) //Nie znaleziono takiego adresu
+                    {
+                        int indeks = ZnajdzAdresPoSkrocie(skrot);
+
+                        if (indeks == -1) //Nie znaleziono takiego skrótu
+                        {
+                            indeks = ZnajdzWolneMiejsce();
+
+                            if (indeks != -1)
+                            {
+                                WstawAdres(adres, skrot, indeks);
+                                dodaneAdresy++;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        cout << "\tDodano " << dodaneAdresy << " z " << wczytaneAdresy << "\n";
+    }
+}
 
 void WypiszOpcjeSzukania()
 {
@@ -512,6 +613,12 @@ void MenuGlowne()
 				break;
 			case 'w':
                 WypiszAdresy();
+                break;
+            case 'e':
+                EksportujAdresy();
+                break;
+            case 'i':
+                ImportujAdresy();
                 break;
 			case 'o':
 				WypiszOpcjeMenuGlownego();
